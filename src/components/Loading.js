@@ -11,6 +11,7 @@ const spinAnimation = keyframes`
 `;
 
 const LoadingContainer = styled.div`
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,8 +20,10 @@ const LoadingContainer = styled.div`
 const LoadingCircle = styled.div`
   width: 50px;
   height: 50px;
-  border: 5px solid rgba(242, 38, 75, 0.2);
+  border: 5px solid #f8f8f8;
   border-top: 5px solid #f2264b;
+  border-left: 5px solid #f2264b;
+  border-right: 5px solid #f2264b;
   border-radius: 50%;
   animation: ${spinAnimation} 1s linear infinite;
 `;

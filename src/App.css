@@ -18,3 +18,25 @@ body {
   color: var(--black);
   font-family: "Gilroy";
 }
+
+section,
+.characters-list {
+  opacity: 0;
+  transform: translate3d(0, +100px, 0);
+}
+
+section.show-section,
+.characters-list.show-section {
+  opacity: 1;
+  transform: translateZ(0);
+  transition-property: opacity, transform;
+  transition: 0.4s ease;
+}
+
+p.error {
+  font-weight: 700;
+  width: 60%;
+  margin: 0 auto;
+  text-align: center;
+  transition: all 0.4s ease;
+}

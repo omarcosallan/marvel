@@ -2,11 +2,11 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { styled } from "styled-components";
 import { useEffect, useState } from "react";
-import { fetchSerie } from "../api/characters";
 import { BackIcon } from "../components/icons/back-icon";
-import { useCharacterContext } from "../contexts/CharactersContext";
+import { useSerie } from "../hooks/useSerie";
+import { Loading } from "../components/Loading";
 
-const CharacterContainer = styled.div`
+const CharacterContainer = styled.section`
   padding: 61.5px 160px;
 
   svg {
@@ -69,6 +69,13 @@ const Title = styled.h3`
   font-size: 32px;
   font-weight: 900;
   text-transform: uppercase;
+  color: var(--red);
+`;
+
+const TitleDetails = styled.h3`
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: uppercase;
 `;
 
 const Creators = styled.div`
@@ -91,19 +98,16 @@ const Description = styled.p`
 `;
 
 export function Serie() {
-  const { loading } = useCharacterContext();
-  const [serie, setSerie] = useState([]);
+  const params = useParams();
+
+  const { data: serieData, loading, error } = useSerie(params.idSerie, 1, 0);
+  const [serie, setSerie] = useState();
 
   const navigate = useNavigate();
 
-  const params = useParams();
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchSerie(params.idSerie, 1, 0);
-      setSerie(data?.data?.results[0]);
-    };
-    fetchData();
-  }, [params.idSerie, setSerie]);
+    setSerie(serieData);
+  }, [serieData]);
 
   const imageUrl =
     `${serie?.thumbnail?.path}.${serie?.thumbnail?.extension}` ||
@@ -139,111 +143,109 @@ export function Serie() {
     setInker(inkerCreators?.map((creator) => creator.name) || null);
   }, [serie?.creators?.items]);
 
-  if (loading) {
-    return (
-      <CharacterContainer>
-        <p>Aguarde...</p>
-      </CharacterContainer>
-    );
-  }
+  useEffect(() => {
+    if (!loading) {
+      document.querySelector(".serie-section")?.classList?.add("show-section");
+    }
+  }, [loading]);
 
   return (
-    <>
+    <CharacterContainer className="serie-section">
+      {loading && <Loading />}
+      {error && <p className="error">{error}</p>}
       {serie && (
         <>
-          <CharacterContainer>
-            <Card>
-              <figure>
-                <CardImage src={imageUrl} alt={serie?.title} />
-              </figure>
-              <CardInformations>
-                <Back
-                  onClick={() => {
-                    navigate(`/character/${params.idCharacter}`);
-                  }}
-                >
-                  <BackIcon color={"black"} />
-                  <span>Voltar</span>
-                </Back>
+          <Card>
+            <figure>
+              <CardImage src={imageUrl} alt={serie?.title} />
+            </figure>
+            <CardInformations>
+              <Back
+                onClick={() => {
+                  navigate(`/character/${params.idCharacter}`);
+                }}
+              >
+                <BackIcon color={"black"} />
+                <span>Voltar</span>
+              </Back>
+              <div>
+                <Type>Series</Type>
+                <Title>{serie?.title}</Title>
+                <Creators>
+                  {writer?.length >= 1 && (
+                    <div>
+                      <h4>Writer:</h4>
+                      {writer.map((item) => (
+                        <p key={item}>{item}</p>
+                      ))}
+                    </div>
+                  )}
+                  {penciler?.length >= 1 && (
+                    <div>
+                      <h4>Penciler:</h4>
+                      {penciler.map((item) => (
+                        <p>{item}</p>
+                      ))}
+                    </div>
+                  )}
+                  {editor?.length >= 1 && (
+                    <div>
+                      <h4>Editor:</h4>
+                      {editor.map((item) => (
+                        <p>{item}</p>
+                      ))}
+                    </div>
+                  )}
+                  {colorist?.length >= 1 && (
+                    <div>
+                      <h4>Colorist:</h4>
+                      {colorist.map((item) => (
+                        <p>{item}</p>
+                      ))}
+                    </div>
+                  )}
+                  {inker?.length >= 1 && (
+                    <div>
+                      <h4>Inker:</h4>
+                      {inker.map((item) => (
+                        <p>{item}</p>
+                      ))}
+                    </div>
+                  )}
+                </Creators>
                 <div>
-                  <Type>Series</Type>
-                  <Title>{serie?.title}</Title>
-                  <Creators>
-                    {writer?.length >= 1 && (
-                      <div>
-                        <h4>Writer:</h4>
-                        {writer.map((item) => (
-                          <p key={item}>{item}</p>
-                        ))}
-                      </div>
-                    )}
-                    {penciler?.length >= 1 && (
-                      <div>
-                        <h4>Penciler:</h4>
-                        {penciler.map((item) => (
-                          <p>{item}</p>
-                        ))}
-                      </div>
-                    )}
-                    {editor?.length >= 1 && (
-                      <div>
-                        <h4>Editor:</h4>
-                        {editor.map((item) => (
-                          <p>{item}</p>
-                        ))}
-                      </div>
-                    )}
-                    {colorist?.length >= 1 && (
-                      <div>
-                        <h4>Colorist:</h4>
-                        {colorist.map((item) => (
-                          <p>{item}</p>
-                        ))}
-                      </div>
-                    )}
-                    {inker?.length >= 1 && (
-                      <div>
-                        <h4>Inker:</h4>
-                        {inker.map((item) => (
-                          <p>{item}</p>
-                        ))}
-                      </div>
-                    )}
-                  </Creators>
-                  <div>
-                    <Description>{serie?.description}</Description>
-                  </div>
+                  <Description>{serie?.description}</Description>
                 </div>
-              </CardInformations>
-            </Card>
-            <>
-              {!serie?.format && !serie?.upc && !serie?.prices?.length > 0 ? (
-                <Title>No more details</Title>
-              ) : (
-                <Title>More details</Title>
-              )}
-              {serie?.format && (
-                <h4>
-                  Format: <span>{serie?.format}</span>
-                </h4>
-              )}
-              {serie?.prices?.length > 0 && (
-                <h4>
-                  Price:{" "}
-                  {serie?.prices.map((item) => (
-                    <span>${item.price}</span>
-                  ))}
-                </h4>
-              )}
-              {serie?.upc && (
-                <h4>
-                  UPC: <span>{serie?.upc}</span>
-                </h4>
-              )}
-            </>
-          </CharacterContainer>
+              </div>
+            </CardInformations>
+          </Card>
+          <>
+            {!serie?.format && !serie?.upc && !serie?.prices?.length > 0 ? (
+              <TitleDetails>No more details</TitleDetails>
+            ) : (
+              <TitleDetails>More details</TitleDetails>
+            )}
+            {serie?.format && (
+              <h4>
+                Format: <span>{serie?.format}</span>
+              </h4>
+            )}
+            {serie?.prices?.length > 0 && (
+              <h4>
+                Price:{" "}
+                {serie?.prices.map((item) => (
+                  <span>${item.price}</span>
+                ))}
+              </h4>
+            )}
+            {serie?.upc && (
+              <h4>
+                UPC: <span>{serie?.upc}</span>
+              </h4>
+            )}
+          </>
         </>
       )}
-    </>
+    </CharacterContainer>
   );
 }

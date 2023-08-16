@@ -6,7 +6,9 @@ import { BackIcon } from "../components/icons/back-icon";
 import { formatDate } from "../utils/formatDate";
 import { useComic } from "../hooks/useComic";
 
-const CharacterContainer = styled.div`
+import { Loading } from "../components/Loading";
+
+const CharacterContainer = styled.section`
   padding: 61.5px 160px;
 
   svg {
@@ -23,6 +25,16 @@ const Card = styled.div`
 
   border-radius: 16px;
   line-height: 150%;
+
+  figure img {
+    width: 350px;
+    object-fit: cover;
+    box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
+
+    opacity: 0;
+    transition: opacity, 0.1s ease-in-out;
+    transform: translateZ(0);
+  }
 `;
 
 const Back = styled.div`
@@ -36,12 +48,6 @@ const Back = styled.div`
   > svg {
     width: 24px;
   }
-`;
-
-const CardImage = styled.img`
-  width: 350px;
-  object-fit: cover;
-  box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
 `;
 
 const CardInformations = styled.div`
@@ -66,6 +72,13 @@ const Type = styled.span`
 `;
 
 const Title = styled.h3`
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--red);
+`;
+
+const TitleDetails = styled.h3`
   font-size: 32px;
   font-weight: 900;
   text-transform: uppercase;
@@ -97,7 +110,7 @@ const Description = styled.p`
 export function Comic() {
   const params = useParams();
 
-  const { comic: comicData } = useComic(params.idComic, 1, 0);
+  const { data: comicData, loading, error } = useComic(params.idComic, 1, 0);
   const [comic, setComic] = useState();
 
   const navigate = useNavigate();
@@ -140,13 +153,26 @@ export function Comic() {
     setInker(inkerCreators?.map((creator) => creator.name) || null);
   }, [comic?.creators?.items]);
 
+  useEffect(() => {
+    if (!loading) {
+      document.querySelector(".comic-section")?.classList?.add("show-section");
+    }
+  }, [loading]);
+
   return (
-    <>
+    <CharacterContainer className="comic-section">
+      {loading && <Loading />}
+      {error && <p className="error">{error}</p>}
       {comic && (
-        <CharacterContainer>
+        <>
           <Card>
             <figure>
-              <CardImage src={imageUrl} alt={comic?.title} />
+              <img
+                src={imageUrl}
+                alt={comic?.title}
+                loading="laze"
+                onLoad={(e) => (e.target.style.opacity = 1)}
+              />
             </figure>
             <CardInformations>
               <Back
@@ -209,16 +235,16 @@ export function Comic() {
                   )}
                 </Creators>
                 <div>
-                  <Description>{comic.description}</Description>
+                  <Description>{comic?.description}</Description>
                 </div>
               </div>
             </CardInformations>
           </Card>
           <>
             {!comic?.format && !comic?.upc && !comic?.prices?.length > 0 ? (
-              <Title>No more details</Title>
+              <TitleDetails>No more details</TitleDetails>
             ) : (
-              <Title>More details</Title>
+              <TitleDetails>More details</TitleDetails>
             )}
             {comic?.format && (
               <h4>
@@ -239,8 +265,8 @@ export function Comic() {
               </h4>
             )}
           </>
-        </CharacterContainer>
+        </>
       )}
-    </>
+    </CharacterContainer>
   );
 }

@@ -5,14 +5,17 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { CharacterProvider } from "./contexts/CharactersContext";
 import { DefaultProviders } from "./components/default-providers";
+import { FilterProvider } from "./contexts/FilterContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <DefaultProviders>
-      <CharacterProvider>
-        <App />
-      </CharacterProvider>
+      <FilterProvider>
+        <CharacterProvider>
+          <App />
+        </CharacterProvider>
+      </FilterProvider>
     </DefaultProviders>
   </React.StrictMode>
 );

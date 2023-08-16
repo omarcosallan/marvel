@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchCharacter } from "../api/characters";
+import { fetchSerie } from "../api/characters";
 
-export function useCharacter(id) {
+export function useSerie(id, limit, offset) {
   const { data, isLoading, error } = useQuery({
-    queryFn: () => fetchCharacter(id),
-    queryKey: ["character", id],
+    queryFn: () => fetchSerie(id, limit, offset),
+    queryKey: ["serie", id],
     staleTime: 1000 * 60 * 5,
     retry: (failureCount, error) => {
       if (failureCount <= 3) {
@@ -16,8 +16,7 @@ export function useCharacter(id) {
 
   if (error) {
     return {
-      error:
-        "Ocorreu um erro ao buscar o personagem. Tente novamente em instantes.",
+      error: "Ocorreu um erro ao buscar a série.",
       loading: isLoading,
     };
   }

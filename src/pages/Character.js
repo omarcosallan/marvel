@@ -7,13 +7,12 @@ import { CardSeriesAndComics } from "../components/CardSeriesAndComics";
 import { BackIcon } from "../components/icons/back-icon";
 
 import { useCharacter } from "../hooks/useCharacter";
-import { useCharacterContext } from "../contexts/CharactersContext";
 
 import { useComics } from "../hooks/useComics";
 import { useSeries } from "../hooks/useSeries";
 import { Loading } from "../components/Loading";
 
-const CharacterContainer = styled.div`
+const CharacterContainer = styled.section`
   padding: 30px 160px;
 
   svg {
@@ -38,8 +37,8 @@ const Card = styled.div`
 
 const CardImage = styled.img`
   width: 350px;
-  border-radius: 16px;
   object-fit: cover;
+  box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
 `;
 
 const Back = styled.div`
@@ -57,10 +56,7 @@ const Back = styled.div`
 const CardInformations = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-
-  width: 100%;
-  height: 350px;
+  justify-content: space-between;
 
   color: var(--black);
 
@@ -73,6 +69,7 @@ const NameCharacter = styled.h3`
   font-size: 32px;
   font-weight: 900;
   text-transform: uppercase;
+  color: var(--red);
 `;
 
 const NamePerson = styled.h4`
@@ -93,6 +90,10 @@ const SectionTitleContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
+  }
+
+  > a:hover {
+    color: var(--black);
   }
 
   span {
@@ -121,24 +122,21 @@ const Description = styled.p`
 
 const SectionList = styled.ul`
   display: flex;
-  justify-content: center;
+  justify-content: left;
   flex-wrap: wrap;
   list-style: none;
 
-  gap: 16px;
-
   a {
-    width: 15%;
+    width: calc(100% / 6);
+    padding-inline: 16px 8px;
     text-decoration: none;
   }
 
   a:hover {
     cursor: pointer;
 
-    figure {
-      position: relative;
+    div {
       top: -8px;
-      transition: top 1s ease-in-out;
     }
 
     h4 {
@@ -152,20 +150,33 @@ const Type = styled.span`
 `;
 
 export function Character() {
-  const { loading } = useCharacterContext();
+  document.querySelector(".App")?.classList?.remove("open");
+  document.querySelector("header form")?.classList?.remove("open");
 
   const params = useParams();
 
   // fetch character
-  const { character: characterData } = useCharacter(params.id);
+  const {
+    data: characterData,
+    error,
+    loading: loadingCharacter,
+  } = useCharacter(params.id);
   const [character, setCharacter] = useState();
 
   // fetch 6 comics
-  const { comics: comicsData } = useComics(params.id, 6, 0);
+  const {
+    data: comicsData,
+    error: errorComics,
+    loading: loadingComics,
+  } = useComics(params.id, 6, 0);
   const [comics, setComics] = useState();
 
   // fetch 6 series
-  const { series: seriesData } = useSeries(params.id, 6, 0);
+  const {
+    data: seriesData,
+    error: errorSeries,
+    loading: loadingSeries,
+  } = useSeries(params.id, 6, 0);
   const [series, setSeries] = useState();
 
   useEffect(() => {
@@ -173,6 +184,14 @@ export function Character() {
     setComics(comicsData);
     setSeries(seriesData);
   }, [characterData, seriesData, comicsData]);
+
+  useEffect(() => {
+    if (!loadingCharacter) {
+      document
+        .querySelector(".character-section")
+        .classList.add("show-section");
+    }
+  }, [loadingCharacter]);
 
   const navigate = useNavigate();
 
@@ -186,15 +205,21 @@ export function Character() {
 
   return (
     <>
-      {loading && !character && !series && !comics ? (
-        <CharacterContainer>
-          <Loading></Loading>
+      {!character && !series && !comics ? (
+        <CharacterContainer className="character-section">
+          {error && <p className="error">{error}</p>}
+          {(loadingCharacter || loadingComics || loadingSeries) && (
+            <Loading></Loading>
+          )}
         </CharacterContainer>
       ) : (
-        <CharacterContainer>
+        <CharacterContainer
+          className="character-section"
+          onLoad={() => document.querySelector(".App").classList.add("open")}
+        >
           <Card>
             <figure>
-              <CardImage src={urlImage} />
+              <CardImage src={urlImage} loading="laze" />
             </figure>
             <CardInformations>
               <Back
@@ -230,8 +255,12 @@ export function Character() {
                 <BackIcon color={"#f2264b"} />
               </Link>
             </SectionTitleContainer>
-            <SectionList key={comics}>
-              {Array.isArray(comics) &&
+            <SectionList key={comics} loading="laze">
+              {loadingComics && <Loading></Loading>}
+              {errorComics && <p className="error">{errorComics}</p>}
+              {!loadingComics &&
+                !errorComics &&
+                Array.isArray(comics) &&
                 comics.map((comic) => (
                   <Link
                     key={comic.id}
@@ -250,8 +279,12 @@ export function Character() {
                 <BackIcon color={"#f2264b"} />
               </Link>
             </SectionTitleContainer>
-            <SectionList key={series}>
-              {Array.isArray(series) &&
+            <SectionList key={series} loading="laze">
+              {loadingSeries && <Loading></Loading>}
+              {errorSeries && <p className="error">{errorSeries}</p>}
+              {!loadingSeries &&
+                !errorSeries &&
+                Array.isArray(series) &&
                 series.map((serie) => (
                   <Link
                     key={serie.id}

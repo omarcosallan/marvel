@@ -2,18 +2,28 @@ import { SearchIcon } from "./icons/search-icon";
 import { MarvelLogo } from "./icons/marvel-logo";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useFilterContext } from "../contexts/FilterContext";
+
+const Container = styled.div`
+  .open {
+    display: flex;
+  }
+`;
 
 const HeaderContainer = styled.header`
-  display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: var(--silver);
   padding: 15px 160px;
 
-  /* box-shadow: 0px 20px 40px -8px rgba(0, 0, 0, 0.3); */
+  display: flex;
+
+  .open form {
+    display: flex;
+  }
 
   form {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-between;
 
@@ -43,19 +53,32 @@ const HeaderContainer = styled.header`
 `;
 
 export function Header() {
+  const { filter, handleFilterChange } = useFilterContext();
+
+  const handleInputChange = (e) => {
+    handleFilterChange(e.target.value);
+  };
+
   return (
-    <HeaderContainer>
-      <Link to="/">
-        <MarvelLogo />
-      </Link>
-      <form>
-        <label>
-          <input type="text" placeholder="Pesquisa" />
-        </label>
-        <button>
-          <SearchIcon />
-        </button>
-      </form>
-    </HeaderContainer>
+    <Container>
+      <HeaderContainer className="header-primary">
+        <Link to="/">
+          <MarvelLogo />
+        </Link>
+        <form>
+          <label>
+            <input
+              type="text"
+              placeholder="Pesquisa"
+              value={filter}
+              onChange={handleInputChange}
+            />
+          </label>
+          <button>
+            <SearchIcon />
+          </button>
+        </form>
+      </HeaderContainer>
+    </Container>
   );
 }

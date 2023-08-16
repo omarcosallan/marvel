@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useCharacterContext } from "../contexts/CharactersContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { styled } from "styled-components";
 import { CardSeriesAndComics } from "../components/CardSeriesAndComics";
 import { useComics } from "../hooks/useComics";
 import { BackIcon } from "../components/icons/back-icon";
+import { Loading } from "../components/Loading";
 
-const ComicsContainer = styled.div`
+const ComicsContainer = styled.section`
   padding: 30px 160px;
 
   svg {
@@ -35,24 +35,21 @@ const SectionTitle = styled.h3`
 
 const SectionList = styled.ul`
   display: flex;
-  justify-content: center;
+  justify-content: left;
   flex-wrap: wrap;
   list-style: none;
 
-  gap: 16px;
-
   a {
-    width: 15%;
+    width: calc(100% / 6);
+    padding: 16px 8px;
     text-decoration: none;
   }
 
   a:hover {
     cursor: pointer;
 
-    figure {
-      position: relative;
+    div {
       top: -8px;
-      transition: top 1s ease-in-out;
     }
 
     h4 {
@@ -62,20 +59,26 @@ const SectionList = styled.ul`
 `;
 
 export function Comics() {
-  const { loading } = useCharacterContext();
+  document.querySelector("header form")?.classList?.remove("open");
 
   const params = useParams();
   const navigate = useNavigate();
 
-  const { comics: comicsData } = useComics(params.id, 100, 0);
+  const { data: comicsData, loading, error } = useComics(params.id, 100, 0);
   const [comics, setComics] = useState();
 
   useEffect(() => {
     setComics(comicsData);
   }, [comicsData]);
 
+  useEffect(() => {
+    if (!loading) {
+      document.querySelector(".comics-section")?.classList?.add("show-section");
+    }
+  }, [loading]);
+
   return (
-    <ComicsContainer>
+    <ComicsContainer className="comics-section">
       <Back
         onClick={() => {
           navigate(`/character/${params.id}`);
@@ -85,9 +88,11 @@ export function Comics() {
         <span>Voltar</span>
       </Back>
       <SectionTitle>Comics</SectionTitle>
-      {comics && !loading ? (
-        <SectionList key={comics}>
-          {comics.map((comic) => (
+      <SectionList key={comics}>
+        {loading && <Loading />}
+        {error && <p className="error">{error}</p>}
+        {comics &&
+          comics.map((comic) => (
             <Link
               key={comic.id}
               to={`/character/${params.id}/comic/${comic.id}`}
@@ -95,10 +100,7 @@ export function Comics() {
               <CardSeriesAndComics data={comic}></CardSeriesAndComics>
             </Link>
           ))}
-        </SectionList>
-      ) : (
-        <p>Aguarde...</p>
-      )}
+      </SectionList>
     </ComicsContainer>
   );
 }

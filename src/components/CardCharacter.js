@@ -14,14 +14,18 @@ const Card = styled.li`
 
   figure {
     width: 100%;
-    height: 210px;
+    height: 100%;
+    max-height: 210px;
 
     > img {
       width: 100%;
       height: 100%;
-
       border-radius: 16px;
       object-fit: cover;
+
+      opacity: 0;
+      transition: opacity, 0.1s ease-in-out;
+      transform: translateZ(0);
     }
   }
 
@@ -66,7 +70,9 @@ export function CardCharacter({ character }) {
           <figure>
             <img
               src={`${character.thumbnail.path}.${character.thumbnail.extension}`}
-              alt=""
+              alt={names[1]?.replace(")", "")}
+              loading="laze"
+              onLoad={(e) => (e.target.style.opacity = 1)}
             />
           </figure>
           <div>

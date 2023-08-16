@@ -3,7 +3,6 @@ import { createContext, useContext, useState } from "react";
 export const CharacterContext = createContext();
 
 export const CharacterProvider = ({ children }) => {
-  const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageNumber, setPageNumber] = useState(1);
@@ -12,8 +11,6 @@ export const CharacterProvider = ({ children }) => {
   return (
     <CharacterContext.Provider
       value={{
-        loading,
-        setLoading,
         totalPages,
         setTotalPages,
         currentPage,
