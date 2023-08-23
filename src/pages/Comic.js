@@ -57,6 +57,8 @@ const CardInformations = styled.div`
 
   color: var(--black);
 
+  overflow: hidden;
+
   span {
     display: block;
   }
@@ -96,7 +98,13 @@ const Creators = styled.div`
   margin: 20px auto;
 
   div {
+    max-height: 75px;
+    overflow: hidden;
     width: 45%;
+  }
+
+  div.click {
+    max-height: max-content;
   }
 `;
 
