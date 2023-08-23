@@ -9,8 +9,6 @@ import { useComic } from "../hooks/useComic";
 import { Loading } from "../components/Loading";
 
 const CharacterContainer = styled.section`
-  padding: 61.5px 160px;
-
   svg {
     cursor: pointer;
   }
@@ -18,6 +16,9 @@ const CharacterContainer = styled.section`
 
 const Card = styled.div`
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 32px;
   margin-bottom: 40px;
 
@@ -27,13 +28,21 @@ const Card = styled.div`
   line-height: 150%;
 
   figure img {
-    width: 350px;
+    width: 100%;
+    max-width: 350px;
     object-fit: cover;
     box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
 
     opacity: 0;
     transition: opacity, 0.1s ease-in-out;
     transform: translateZ(0);
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: flex-start;
+
+    gap: 32px;
   }
 `;
 
@@ -118,14 +127,9 @@ const Description = styled.p`
 export function Comic() {
   const params = useParams();
 
-  const { data: comicData, loading, error } = useComic(params.idComic, 1, 0);
-  const [comic, setComic] = useState();
+  const { data: comic, loading, error } = useComic(params.idComic, 1, 0);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setComic(comicData);
-  }, [comicData]);
 
   const imageUrl =
     `${comic?.thumbnail?.path}.${comic?.thumbnail?.extension}` ||
@@ -168,7 +172,7 @@ export function Comic() {
   }, [loading]);
 
   return (
-    <CharacterContainer className="comic-section">
+    <CharacterContainer className="comic-section container">
       {loading && <Loading />}
       {error && <p className="error">{error}</p>}
       {comic && (
@@ -192,7 +196,7 @@ export function Comic() {
                 <span>Voltar</span>
               </Back>
               <div>
-                <Type>Comics</Type>
+                <Type>Comic</Type>
                 <Title>{comic?.title}</Title>
                 <Published>
                   <div>

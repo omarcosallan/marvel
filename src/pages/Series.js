@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { styled } from "styled-components";
 import { CardSeriesAndComics } from "../components/CardSeriesAndComics";
@@ -7,8 +7,6 @@ import { BackIcon } from "../components/icons/back-icon";
 import { Loading } from "../components/Loading";
 
 const SerieContainer = styled.section`
-  padding: 30px 160px;
-
   svg {
     cursor: pointer;
   }
@@ -40,7 +38,7 @@ const SectionList = styled.ul`
   list-style: none;
 
   a {
-    width: calc(100% / 6);
+    width: calc(100% / 2);
     padding: 16px 8px;
     text-decoration: none;
   }
@@ -56,6 +54,18 @@ const SectionList = styled.ul`
       color: var(--red);
     }
   }
+
+  @media (min-width: 425px) {
+    a {
+      width: calc(100% / 3);
+    }
+  }
+
+  @media (min-width: 768px) {
+    a {
+      width: calc(100% / 6);
+    }
+  }
 `;
 
 export function Series() {
@@ -64,12 +74,7 @@ export function Series() {
   const params = useParams();
   const navigate = useNavigate();
 
-  const { data: seriesData, loading, error } = useSeries(params.id, 100, 0);
-  const [series, setSeries] = useState();
-
-  useEffect(() => {
-    setSeries(seriesData);
-  }, [seriesData]);
+  const { data: series, loading, error } = useSeries(params.id, 100, 0);
 
   useEffect(() => {
     if (!loading) {
@@ -78,7 +83,7 @@ export function Series() {
   }, [loading]);
 
   return (
-    <SerieContainer className="series-section">
+    <div className="container">
       <Back
         onClick={() => {
           navigate(`/character/${params.id}`);
@@ -88,19 +93,23 @@ export function Series() {
         <span>Voltar</span>
       </Back>
       <SectionTitle>Series</SectionTitle>
-      <SectionList key={series}>
-        {loading && <Loading />}
-        {error && <p className="error">{error}</p>}
-        {series &&
-          series.map((serie) => (
-            <Link
-              key={serie.id}
-              to={`/character/${params.id}/serie/${serie.id}`}
-            >
-              <CardSeriesAndComics data={serie}></CardSeriesAndComics>
-            </Link>
-          ))}
-      </SectionList>
-    </SerieContainer>
+      {loading && <Loading></Loading>}
+      <SerieContainer className="series-section">
+        <SectionList key={series}>
+          {error && <p className="error">{error}</p>}
+          {!loading &&
+            !error &&
+            series &&
+            series.map((serie) => (
+              <Link
+                key={serie.id}
+                to={`/character/${params.id}/serie/${serie.id}`}
+              >
+                <CardSeriesAndComics data={serie}></CardSeriesAndComics>
+              </Link>
+            ))}
+        </SectionList>
+      </SerieContainer>
+    </div>
   );
 }

@@ -11,12 +11,12 @@ const Container = styled.div`
 `;
 
 const HeaderContainer = styled.header`
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   background-color: var(--silver);
-  padding: 15px 160px;
-
-  display: flex;
+  padding: 15px;
 
   .open form {
     display: flex;
@@ -25,8 +25,7 @@ const HeaderContainer = styled.header`
   form {
     display: none;
     align-items: center;
-    justify-content: space-between;
-
+    margin-top: 10px;
     position: relative;
 
     input {
@@ -34,7 +33,7 @@ const HeaderContainer = styled.header`
       border-radius: 5px;
       border: 1px solid #eee9f5;
 
-      width: 300px;
+      width: 200px;
       padding: 10px;
 
       color: var(--dark);
@@ -49,6 +48,24 @@ const HeaderContainer = styled.header`
     border: none;
     position: absolute;
     right: 10px;
+  }
+
+  @media (min-width: 425px) {
+    flex-direction: row;
+
+    form {
+      margin-top: 0;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    padding: 30px 160px;
+
+    form {
+      input {
+        width: 300px;
+      }
+    }
   }
 `;
 

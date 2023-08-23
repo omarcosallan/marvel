@@ -19,6 +19,14 @@ body {
   font-family: "Gilroy";
 }
 
+.container {
+  padding: 15px;
+
+  @media (min-width: 1024px) {
+    padding: 30px 160px;
+  }
+}
+
 section,
 .characters-list {
   opacity: 0;

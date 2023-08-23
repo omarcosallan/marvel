@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { styled } from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { CardSeriesAndComics } from "../components/CardSeriesAndComics";
 import { BackIcon } from "../components/icons/back-icon";
@@ -13,8 +13,6 @@ import { useSeries } from "../hooks/useSeries";
 import { Loading } from "../components/Loading";
 
 const CharacterContainer = styled.section`
-  padding: 30px 160px;
-
   svg {
     cursor: pointer;
   }
@@ -22,21 +20,32 @@ const CharacterContainer = styled.section`
 
 const Card = styled.div`
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 32px;
   margin-bottom: 40px;
 
-  > div {
+  > figure {
     width: 100%;
+    max-width: 350px;
   }
 
   color: var(--white);
 
   border-radius: 16px;
   line-height: 150%;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: flex-start;
+
+    gap: 32px;
+  }
 `;
 
 const CardImage = styled.img`
-  width: 350px;
+  width: 100%;
   object-fit: cover;
   box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
 `;
@@ -127,8 +136,9 @@ const SectionList = styled.ul`
   list-style: none;
 
   a {
-    width: calc(100% / 6);
+    width: calc(100% / 2);
     padding-inline: 16px 8px;
+    padding-bottom: 16px;
     text-decoration: none;
   }
 
@@ -136,11 +146,23 @@ const SectionList = styled.ul`
     cursor: pointer;
 
     div {
-      top: -8px;
+      top: -4px;
     }
 
     h4 {
       color: var(--red);
+    }
+  }
+
+  @media (min-width: 425px) {
+    a {
+      width: calc(100% / 3);
+    }
+  }
+
+  @media (min-width: 768px) {
+    a {
+      width: calc(100% / 6);
     }
   }
 `;
@@ -157,33 +179,24 @@ export function Character() {
 
   // fetch character
   const {
-    data: characterData,
+    data: character,
     error,
     loading: loadingCharacter,
   } = useCharacter(params.id);
-  const [character, setCharacter] = useState();
 
   // fetch 6 comics
   const {
-    data: comicsData,
+    data: comics,
     error: errorComics,
     loading: loadingComics,
   } = useComics(params.id, 6, 0);
-  const [comics, setComics] = useState();
 
   // fetch 6 series
   const {
-    data: seriesData,
+    data: series,
     error: errorSeries,
     loading: loadingSeries,
   } = useSeries(params.id, 6, 0);
-  const [series, setSeries] = useState();
-
-  useEffect(() => {
-    setCharacter(characterData);
-    setComics(comicsData);
-    setSeries(seriesData);
-  }, [characterData, seriesData, comicsData]);
 
   useEffect(() => {
     if (!loadingCharacter) {
@@ -206,7 +219,7 @@ export function Character() {
   return (
     <>
       {!character && !series && !comics ? (
-        <CharacterContainer className="character-section">
+        <CharacterContainer className="character-section container">
           {error && <p className="error">{error}</p>}
           {(loadingCharacter || loadingComics || loadingSeries) && (
             <Loading></Loading>
@@ -214,7 +227,7 @@ export function Character() {
         </CharacterContainer>
       ) : (
         <CharacterContainer
-          className="character-section"
+          className="character-section container"
           onLoad={() => document.querySelector(".App").classList.add("open")}
         >
           <Card>

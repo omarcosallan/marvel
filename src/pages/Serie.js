@@ -7,8 +7,6 @@ import { useSerie } from "../hooks/useSerie";
 import { Loading } from "../components/Loading";
 
 const CharacterContainer = styled.section`
-  padding: 61.5px 160px;
-
   svg {
     cursor: pointer;
   }
@@ -16,6 +14,9 @@ const CharacterContainer = styled.section`
 
 const Card = styled.div`
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 32px;
   margin-bottom: 40px;
 
@@ -23,6 +24,24 @@ const Card = styled.div`
 
   border-radius: 16px;
   line-height: 150%;
+
+  figure img {
+    width: 100%;
+    max-width: 350px;
+    object-fit: cover;
+    box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
+
+    opacity: 0;
+    transition: opacity, 0.1s ease-in-out;
+    transform: translateZ(0);
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: flex-start;
+
+    gap: 32px;
+  }
 `;
 
 const Back = styled.div`
@@ -36,12 +55,6 @@ const Back = styled.div`
   > svg {
     width: 24px;
   }
-`;
-
-const CardImage = styled.img`
-  width: 350px;
-  object-fit: cover;
-  box-shadow: 0 7px 17px -8px rgba(0, 0, 0, 0.8);
 `;
 
 const CardInformations = styled.div`
@@ -100,14 +113,9 @@ const Description = styled.p`
 export function Serie() {
   const params = useParams();
 
-  const { data: serieData, loading, error } = useSerie(params.idSerie, 1, 0);
-  const [serie, setSerie] = useState();
+  const { data: serie, loading, error } = useSerie(params.idSerie, 1, 0);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setSerie(serieData);
-  }, [serieData]);
 
   const imageUrl =
     `${serie?.thumbnail?.path}.${serie?.thumbnail?.extension}` ||
@@ -150,14 +158,19 @@ export function Serie() {
   }, [loading]);
 
   return (
-    <CharacterContainer className="serie-section">
+    <CharacterContainer className="serie-section container">
       {loading && <Loading />}
       {error && <p className="error">{error}</p>}
       {serie && (
         <>
           <Card>
             <figure>
-              <CardImage src={imageUrl} alt={serie?.title} />
+              <img
+                src={imageUrl}
+                alt={serie?.title}
+                loading="laze"
+                onLoad={(e) => (e.target.style.opacity = 1)}
+              />
             </figure>
             <CardInformations>
               <Back
@@ -169,7 +182,7 @@ export function Serie() {
                 <span>Voltar</span>
               </Back>
               <div>
-                <Type>Series</Type>
+                <Type>Serie</Type>
                 <Title>{serie?.title}</Title>
                 <Creators>
                   {writer?.length >= 1 && (

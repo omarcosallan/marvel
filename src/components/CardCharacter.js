@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 
-const Card = styled.li`
+const Card = styled.div`
   position: relative;
   width: 100%;
   height: 300px;

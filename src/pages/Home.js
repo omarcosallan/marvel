@@ -8,8 +8,7 @@ import { Loading } from "../components/Loading";
 import { useEffect, useState } from "react";
 import { useFilterContext } from "../contexts/FilterContext";
 
-const HomeContainer = styled.section`
-  padding: 30px 160px;
+const ContainerTitle = styled.div`
   line-height: 32px;
 
   > div {
@@ -23,11 +22,33 @@ const HomeContainer = styled.section`
   }
 `;
 
+const HomeContainer = styled.section`
+  line-height: 32px;
+
+  > span {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--grey);
+  }
+`;
+
 const HomeTitle = styled.h2`
-  width: 34%;
+  width: 100%;
   font-size: 32px;
   font-weight: 900;
   color: var(--dark);
+
+  @media (min-width: 425px) {
+    width: 45%;
+  }
+
+  @media (min-width: 768px) {
+    width: 50%;
+  }
+
+  @media (min-width: 1024px) {
+    width: 34%;
+  }
 `;
 
 const SectionTitle = styled.h3`
@@ -54,17 +75,30 @@ const CharactersList = styled.ul`
     width: 100%;
   }
 
-  a {
-    width: calc(100% / 5);
-    padding: 12px;
+  li {
+    width: calc(100% / 2);
+    padding: 5px;
     position: relative;
     top: 0;
     transition: all 0.17s cubic-bezier(0.02, 0.01, 0.47, 1);
   }
 
-  a:hover {
+  li:hover {
     cursor: pointer;
     top: -8px;
+  }
+
+  @media (min-width: 768px) {
+    li {
+      width: calc(100% / 4);
+      padding: 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    li {
+      width: calc(100% / 5);
+    }
   }
 `;
 
@@ -74,11 +108,9 @@ export function Home() {
 
   const { totalPages, setCurrentPage, setOffset, setPageNumber } =
     useCharacterContext();
-
   const { filter, setFilter, resetFilter } = useFilterContext();
+  const { data: characters, loading, error } = useCharacters();
 
-  const { data, loading, error } = useCharacters();
-  const [characters, setCharacters] = useState();
   const [filteredCharacters, setFilteredCharacters] = useState();
 
   useEffect(() => {
@@ -93,10 +125,6 @@ export function Home() {
       )
     );
   }, [filter, characters]);
-
-  useEffect(() => {
-    setCharacters(data);
-  }, [data]);
 
   useEffect(() => {
     const list = document.querySelector("ul");
@@ -116,34 +144,35 @@ export function Home() {
   };
 
   return (
-    <HomeContainer className="home-section">
-      <span>Bem vindo ao Marvel Heroes</span>
-      <HomeTitle>Vamos conhecer seus personagens favoritos</HomeTitle>
-      <Pagination
-        totalPages={totalPages}
-        onPageChange={(pageNumber) => handlePageChange(pageNumber)}
-      />
-      <div>
-        <SectionTitle>Heróis</SectionTitle>
-
-        {loading && <Loading></Loading>}
-        <CharactersList className="characters-list">
-          {error && <p className="error">{error}</p>}
-          {filteredCharacters &&
-            filteredCharacters.map((character) => (
-              <Link
-                key={character.id}
-                to={`/character/${character.id}`}
-                className="card-item"
-              >
-                <CardCharacter character={character}></CardCharacter>
-              </Link>
-            ))}
-          {filteredCharacters && filteredCharacters.length < 1 && (
-            <p>Nenhum personagem encontrado.</p>
-          )}
-        </CharactersList>
-      </div>
-    </HomeContainer>
+    <>
+      <ContainerTitle className="container">
+        <span>Bem vindo ao Marvel Heroes</span>
+        <HomeTitle>Vamos conhecer seus personagens favoritos</HomeTitle>
+        <Pagination
+          totalPages={totalPages}
+          onPageChange={(pageNumber) => handlePageChange(pageNumber)}
+        />
+      </ContainerTitle>
+      <HomeContainer className="home-section container">
+        <div>
+          <SectionTitle>Heróis</SectionTitle>
+          {loading && <Loading></Loading>}
+          <CharactersList className="characters-list">
+            {error && <p className="error">{error}</p>}
+            {filteredCharacters &&
+              filteredCharacters.map((character) => (
+                <li key={character.id}>
+                  <Link to={`/character/${character.id}`} className="card-item">
+                    <CardCharacter character={character}></CardCharacter>
+                  </Link>
+                </li>
+              ))}
+            {filteredCharacters && filteredCharacters.length === 0 && (
+              <p className="error">Nenhum personagem encontrado.</p>
+            )}
+          </CharactersList>
+        </div>
+      </HomeContainer>
+    </>
   );
 }
